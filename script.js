@@ -92,7 +92,7 @@ class Stack{
     }
 }
 
-let NUM_STACKS = 14;
+let NUM_STACKS = 10;
 let COLORS = [
     "#f08", "#0f0", "#63b", "#ff0", "#0ff", "#f80", 
     "#0a9", "#f00", "#09f", "#e4f", "#00f", "#9ab", "#456",
@@ -101,73 +101,68 @@ let COLORS = [
 /** @type {Stack[]} */
 let stacks = new Array(NUM_STACKS).fill(null);
 
-{   //Generate level
+function reset(){   //Generate level
     let stks = new Array(NUM_STACKS - 1).fill(null).map((_,i)=>new Stack(new Block(COLORS[i], Stack.MAX_HEIGHT))).concat([new Stack()]);
 
     console.log(stks.map(i=>`Stack(${i.blocks.map(j=>`(${j.color} ${j.height})`).join(', ')})`).join('\n'));
-    let steps = NUM_STACKS * 50;
-    while(steps){
+
+    function bar(){
         let s1 = stks[~~(Math.random() * NUM_STACKS)];
-        if(!s1.top) continue;
+        if(!s1.top) return false;
 
         let s2 = stks[~~(Math.random() * NUM_STACKS)];
         if(s2.top && s2.top.color == s1.top.color){
-            steps--;
-            continue;
+            // steps--;
+            return false;
         }
 
         let pushed_height, max_shavable_height;
         max_shavable_height = pushed_height = Math.min(s1.top.height - 1, Stack.MAX_HEIGHT - s2.height);
-        if(max_shavable_height <= 0) continue;
+        if(max_shavable_height <= 0) return false;
 
         let {color, height} = s1.pop();
         s1.blocks.unshift(new Block(color, height - pushed_height));
         s2.blocks.unshift(new Block(color, pushed_height));
 
-        steps--;
-        
-        console.log(stks.map(i=>`Stack(${i.blocks.map(j=>`(${j.color} ${j.height})`).join(', ')})`).join('\n'));
+        return true;
     }
+    // while(steps){
+    //     let s1 = stks[~~(Math.random() * NUM_STACKS)];
+    //     if(!s1.top) continue;
+
+    //     let s2 = stks[~~(Math.random() * NUM_STACKS)];
+    //     if(s2.top && s2.top.color == s1.top.color){
+    //         steps--;
+    //         continue;
+    //     }
+
+    //     let pushed_height, max_shavable_height;
+    //     max_shavable_height = pushed_height = Math.min(s1.top.height - 1, Stack.MAX_HEIGHT - s2.height);
+    //     if(max_shavable_height <= 0) continue;
+
+    //     let {color, height} = s1.pop();
+    //     s1.blocks.unshift(new Block(color, height - pushed_height));
+    //     s2.blocks.unshift(new Block(color, pushed_height));
+
+    //     steps--;
+    // }
+    let steps = NUM_STACKS * 50;
+    let t = 0;
+
+    while(!bar());
+    steps--, t = 0, console.log(".!");
+    let f = setInterval(_=>{
+        while(!bar()){
+            t++;
+            if(t > 100) return clearInterval(f);
+        }
+        steps--, t = 0, console.log(".!");
+        if(steps == 0) clearInterval(f);
+    }, 100);
 
     stacks = stks;
 }
-
-function bar(){
-    let s1 = stacks[~~(Math.random() * NUM_STACKS)];
-    if(!s1.top) return;
-
-    let s2 = stacks[~~(Math.random() * NUM_STACKS)];
-    if(s2.top && s2.top.color == s1.top.color) return;
-
-    let max_shavable_height = Math.min(s1.top.height - 1, Stack.MAX_HEIGHT - s2.height);
-    if(max_shavable_height <= 0) return;
-
-    let pushed_height = ~~(Math.random() * (max_shavable_height - 1)) + 1;
-    
-    let {color, height} = s1.pop();
-    s1.push(new Block(color, height - pushed_height));
-    s2.push(new Block(color, pushed_height));
-    
-    console.log(stacks.map(i=>`Stack(${i.blocks.map(j=>`(${j.color} ${j.height})`).join(', ')})`).join('\n'));
-}
-
-
-// stacks = [
-//     new Stack(new Block(COLORS[0], 2), new Block(COLORS[1], 2), new Block(COLORS[2], 1)),
-//     new Stack(new Block(COLORS[0], 2)),
-//     new Stack(new Block(COLORS[1], 2), new Block(COLORS[0], 1), new Block(COLORS[2], 1), new Block(COLORS[1], 1)),
-//     new Stack(new Block(COLORS[2], 3)),
-//     new Stack(new Block(COLORS[3], 2), new Block(COLORS[4], 2), new Block(COLORS[5], 1)),
-//     new Stack(new Block(COLORS[3], 2), new Block(COLORS[9], 2), new Block(COLORS[10],1)),
-//     new Stack(new Block(COLORS[4], 2), new Block(COLORS[3], 1), new Block(COLORS[5], 1), new Block(COLORS[4], 1)),
-//     new Stack(new Block(COLORS[5], 3), new Block(COLORS[9], 2)),
-//     new Stack(new Block(COLORS[6], 2), new Block(COLORS[7], 2), new Block(COLORS[8], 1)),
-//     new Stack(new Block(COLORS[6], 2), new Block(COLORS[9], 1), new Block(COLORS[11],2)),
-//     new Stack(new Block(COLORS[7], 2), new Block(COLORS[6], 1), new Block(COLORS[8], 1), new Block(COLORS[7], 1)),
-//     new Stack(new Block(COLORS[8], 3), new Block(COLORS[11],2)),
-
-//     new Stack(new Block(COLORS[9], 2), new Block(COLORS[10], 2), new Block(COLORS[11], 1)),
-// ];
+reset();
 
 /** @type {{block:Block,from:number,to:number,state:{time:number,state:number}}} */
 let animating = {block:null,from:null,to:null,state:{time:0,state:0}};
@@ -195,7 +190,8 @@ function isFinished(){return stacks.map(i=>i.complete).reduce((a,b)=>a&&b,true)}
 
 let selected = null;
 window.onclick = e=>{
-    if(animating.state.state || isFinished()) return;
+    if(isFinished()) return reset();
+    if(animating.state.state) return;
 
     let s = foo(e.clientX, e.clientY);
     if(s === undefined) return;
