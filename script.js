@@ -111,6 +111,7 @@ let stacks = new Array(NUM_STACKS).fill(null);
         if(stks[s].length && stks[s][0]){
 
         }
+        steps--;
     }
 }
 
