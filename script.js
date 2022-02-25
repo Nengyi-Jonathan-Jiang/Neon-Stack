@@ -92,13 +92,44 @@ class Stack{
     }
 }
 
-let scale = 100;
+let NUM_STACKS = 8;
+let COLORS = [
+    "#f08", "#0f0", "#63b", "#ff0", "#0ff", "#f80", 
+    "#0a9", "#f00", "#09f", "#e4f", "#00f", "#9ab", "#456",
+];
 
-let stacks = [
-    new Stack(new Block("#0F0", 2), new Block("#0FF", 2), new Block("#808", 1)),
-    new Stack(new Block("#0F0", 2)),
-    new Stack(new Block("#0FF", 2), new Block("#0F0", 1), new Block("#808", 1), new Block("#0FF", 1)),
-    new Stack(new Block("#808", 3)),
+/** @type {Stack[]} */
+let stacks = new Array(NUM_STACKS).fill(null);
+
+{   //Generate level
+    let stks = new Array(NUM_STACKS - 1).fill(null).map((_,i)=>[[i, Stack.MAX_HEIGHT]]).concat([[]]);
+    console.log(stks);
+
+    let steps = NUM_STACKS;
+    while(steps>0){
+        let s = ~~(Math.random() * NUM_STACKS);
+        if(stks[s].length && stks[s][0]){
+
+        }
+    }
+}
+
+
+stacks = [
+    new Stack(new Block(COLORS[0], 2), new Block(COLORS[1], 2), new Block(COLORS[2], 1)),
+    new Stack(new Block(COLORS[0], 2)),
+    new Stack(new Block(COLORS[1], 2), new Block(COLORS[0], 1), new Block(COLORS[2], 1), new Block(COLORS[1], 1)),
+    new Stack(new Block(COLORS[2], 3)),
+    new Stack(new Block(COLORS[3], 2), new Block(COLORS[4], 2), new Block(COLORS[5], 1)),
+    new Stack(new Block(COLORS[3], 2), new Block(COLORS[9], 2), new Block(COLORS[10],1)),
+    new Stack(new Block(COLORS[4], 2), new Block(COLORS[3], 1), new Block(COLORS[5], 1), new Block(COLORS[4], 1)),
+    new Stack(new Block(COLORS[5], 3), new Block(COLORS[9], 2)),
+    new Stack(new Block(COLORS[6], 2), new Block(COLORS[7], 2), new Block(COLORS[8], 1)),
+    new Stack(new Block(COLORS[6], 2), new Block(COLORS[9], 1), new Block(COLORS[11],2)),
+    new Stack(new Block(COLORS[7], 2), new Block(COLORS[6], 1), new Block(COLORS[8], 1), new Block(COLORS[7], 1)),
+    new Stack(new Block(COLORS[8], 3), new Block(COLORS[11],2)),
+
+    new Stack(new Block(COLORS[9], 2), new Block(COLORS[10], 2), new Block(COLORS[11], 1)),
 ];
 
 /** @type {{block:Block,from:number,to:number,state:{time:number,state:number}}} */
@@ -116,9 +147,9 @@ function move(i, j){
 }
 
 function foo(x, y){
-    let scale = ~~Math.min(window.innerWidth / stacks.length / 2, window.innerHeight / (Stack.MAX_HEIGHT + 2));
-    console.log(~~(x / scale - .5) & 2);
-    if(y >= scale && y <= scale * (1 + Stack.MAX_HEIGHT) && (x / scale - .5) % 2 <= 1){
+    let scale = ~~Math.min(window.innerWidth / stacks.length / 2, window.innerHeight / (2 * Stack.MAX_HEIGHT + 3));
+    console.log(~~(x / scale - .5));
+    if(y >= scale * (Stack.MAX_HEIGHT + 1) && y <= scale * (2 * Stack.MAX_HEIGHT + 1) && (x / scale - .5) % 2 <= 1){
         return ~~((x / scale - .5) / 2);
     }
 }
@@ -127,7 +158,7 @@ function isFinished(){return stacks.map(i=>i.complete).reduce((a,b)=>a&&b,true)}
 
 let selected = null;
 window.onclick = e=>{
-    if(animating.state.state) return;
+    if(animating.state.state || isFinished()) return;
 
     let s = foo(e.clientX, e.clientY);
     if(s === undefined) return;
@@ -142,10 +173,9 @@ window.onclick = e=>{
     }
 }
 window.onkeypress = e => {
-    if(animating.state.state) return;
+    if(animating.state.state || isFinished()) return;
 
-    let s = +e.key - 1;
-    if(isNaN(+e.key)) return;
+    let s = "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".indexOf(e.key.toUpperCase());
     if(s >= 0 && s < stacks.length){
         if(selected !== null){
             console.log(`Move: ${selected} -> ${s}`);
@@ -158,18 +188,23 @@ window.onkeypress = e => {
 }
 
 function frame(){
-    let scale = ~~Math.min(window.innerWidth / 8, window.innerHeight / (2 * Stack.MAX_HEIGHT + 3));
+    let scale = ~~Math.min(window.innerWidth / stacks.length / 2, window.innerHeight / (2 * Stack.MAX_HEIGHT + 3));
     ctx.fillStyle = BACKGROUND_COLOR;
     ctx.fillRect(0, 0, c.width, c.height);
 
     for(let i = 0; i < stacks.length; i++){
-        stacks[i].draw(ctx, [(1 + 4 * i) * scale / 2, scale * (Stack.MAX_HEIGHT + 2)], scale, i === selected);
+        stacks[i].draw(ctx, [(1 + 4 * i) * scale / 2, scale * (Stack.MAX_HEIGHT + 1)], scale, i === selected);
+        ctx.fillStyle = "#FFF";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.font = `${scale}px sans-serif`;
+        ctx.fillText("123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"[i], (1 + 2 * i) * scale, scale * (2 * Stack.MAX_HEIGHT + 2));
     }
 
     if(animating.state.state){
-        let height1 = 2 + 2 * Stack.MAX_HEIGHT - stacks[animating.from].height - animating.block.height;
-        let height2 = 1 + Stack.MAX_HEIGHT - animating.block.height;
-        let height3 = 2 + 2 * Stack.MAX_HEIGHT - stacks[animating.to].height - animating.block.height;
+        let height1 = 1 + 2 * Stack.MAX_HEIGHT - stacks[animating.from].height - animating.block.height;
+        let height2 = Stack.MAX_HEIGHT - animating.block.height;
+        let height3 = 1 + 2 * Stack.MAX_HEIGHT - stacks[animating.to].height - animating.block.height;
 
         switch(animating.state.state){
             case 1:
@@ -181,7 +216,7 @@ function frame(){
                         scale * (height1 + (height2 - height1) * animating.state.time)
                     ], scale
                 );
-                animating.state.time += .1;
+                animating.state.time += .2 / (height1 - height2);
                 if(animating.state.time >= 1) animating.state.state++, animating.state.time = 0;
                 break;
             case 2:
@@ -193,7 +228,7 @@ function frame(){
                         scale * height2
                     ], scale
                 );
-                animating.state.time += .1;
+                animating.state.time += .1 / Math.abs(animating.to - animating.from);
                 if(animating.state.time >= 1) animating.state.state++, animating.state.time = 0;
                 break;
             case 3:
@@ -205,7 +240,7 @@ function frame(){
                         scale * (height2 + (height3 - height2) * animating.state.time)
                     ], scale
                 );
-                animating.state.time += .1;
+                animating.state.time += .2 / (height3 - height2);
                 if(animating.state.time >= 1){
                     stacks[animating.to].push(animating.block);
                     animating.state.state = animating.state.time = 0;
@@ -214,16 +249,16 @@ function frame(){
         }
     }
 
-    if(isFinished() || true){
+    if(isFinished()){
         frame.timeFinished ||= 0;
-        frame.timeFinished += .4;
+        frame.timeFinished += .1;
 
         ctx.fillStyle = "#0F04";
         ctx.fillRect(0, 0, c.width, c.height);
-        ctx.fillStyle = "#FFF" + "0123456789ABCDEF"[~~Math.min(frame.timeFinished, 15)];
+        ctx.fillStyle = "#FFF" + "0123456789ABCDEF"[~~Math.min(frame.timeFinished * 15, 15)];
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.font = `${scale * Math.min(frame.timeFinished, 3)}px monospace`;
+        ctx.font = `${scale * Math.min(frame.timeFinished * 3, 3)}px sans-serif`;
         ctx.fillText("Solved", c.width / 2, c.height / 2);
     }
 }
