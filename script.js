@@ -126,37 +126,17 @@ function reset(){   //Generate level
 
         return true;
     }
-    // while(steps){
-    //     let s1 = stks[~~(Math.random() * NUM_STACKS)];
-    //     if(!s1.top) continue;
-
-    //     let s2 = stks[~~(Math.random() * NUM_STACKS)];
-    //     if(s2.top && s2.top.color == s1.top.color){
-    //         steps--;
-    //         continue;
-    //     }
-
-    //     let pushed_height, max_shavable_height;
-    //     max_shavable_height = pushed_height = Math.min(s1.top.height - 1, Stack.MAX_HEIGHT - s2.height);
-    //     if(max_shavable_height <= 0) continue;
-
-    //     let {color, height} = s1.pop();
-    //     s1.blocks.unshift(new Block(color, height - pushed_height));
-    //     s2.blocks.unshift(new Block(color, pushed_height));
-
-    //     steps--;
-    // }
     let steps = NUM_STACKS * 50;
     let t = 0;
 
     while(!bar());
-    steps--, t = 0, console.log(".!");
     let f = setInterval(_=>{
         while(!bar()){
             t++;
             if(t > 100) return clearInterval(f);
         }
-        steps--, t = 0, console.log(".!");
+        steps--;
+        t = 0;
         if(steps == 0) clearInterval(f);
     }, 100);
 
