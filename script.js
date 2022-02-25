@@ -104,15 +104,6 @@ let stacks = new Array(NUM_STACKS).fill(null);
 {   //Generate level
     let stks = new Array(NUM_STACKS - 1).fill(null).map((_,i)=>[[i, Stack.MAX_HEIGHT]]).concat([[]]);
     console.log(stks);
-
-    let steps = NUM_STACKS;
-    while(steps>0){
-        let s = ~~(Math.random() * NUM_STACKS);
-        if(stks[s].length && stks[s][0]){
-
-        }
-        steps--;
-    }
 }
 
 
