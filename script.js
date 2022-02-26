@@ -138,6 +138,7 @@ function reset(){   //Generate level
     }, 100);
 
     stacks = stks;
+    frame.timeFinished = 0;
 }
 reset();
 
