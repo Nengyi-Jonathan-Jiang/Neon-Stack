@@ -242,7 +242,7 @@ function frame(){
                         scale * height2
                     ], scale
                 );
-                animating.state.time += .1 / Math.abs(animating.to - animating.from);
+                animating.state.time += .2 / Math.abs(animating.to - animating.from);
                 if(animating.state.time >= 1) animating.state.state++, animating.state.time = 0;
                 break;
             case 3:
