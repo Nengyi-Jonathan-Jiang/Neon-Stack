@@ -158,9 +158,8 @@ function move(i, j){
 
 function foo(x, y){
     let scale = getScale();
-    if(y >= scale * (Stack.MAX_HEIGHT + 1) && y <= scale * (2 * Stack.MAX_HEIGHT + 1)){
-        return ~~(x / scale / 2);
-    }
+    if(y < c.height - scale * (Stack.MAX_HEIGHT + 2)) return undefined;
+    return ~~(x / scale / 2);
 }
 
 function isFinished(){return stacks.map(i=>i.complete).reduce((a,b)=>a&&b,true)}
