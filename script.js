@@ -230,7 +230,7 @@ function frame(){
                         scale * (height1 + (height2 - height1) * animating.state.time)
                     ], scale
                 );
-                animating.state.time += .2 / (height1 - height2);
+                animating.state.time += .3 / (height1 - height2);
                 if(animating.state.time >= 1) animating.state.state++, animating.state.time = 0;
                 break;
             case 2:
@@ -254,7 +254,7 @@ function frame(){
                         scale * (height2 + (height3 - height2) * animating.state.time)
                     ], scale
                 );
-                animating.state.time += .2 / (height3 - height2);
+                animating.state.time += .3 / (height3 - height2);
                 if(animating.state.time >= 1){
                     stacks[animating.to].push(animating.block);
                     animating.state.state = animating.state.time = 0;
